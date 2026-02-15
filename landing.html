@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Power Room | Unleash Your Potential</title>
+    <meta name="description" content="Transform your body and mind at The Power Room. Premium fitness training with world-class equipment and expert trainers." />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Bebas Neue', 'sans-serif'],
+            },
+            colors: {
+              'power-red': '#ff4d4d',
+              'power-orange': '#ff6b35',
+              'power-yellow': '#f7c531',
+              'dark-bg': '#0a0a0a',
+              'dark-card': '#151515',
+              'dark-border': '#2a2a2a',
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                '50%': { transform: 'translateY(-20px) rotate(5deg)' },
+              },
+              'pulse-glow': {
+                '0%, 100%': { boxShadow: '0 0 20px rgba(255, 77, 77, 0.5)' },
+                '50%': { boxShadow: '0 0 40px rgba(255, 77, 77, 0.8)' },
+              },
+            },
+          }
+        }
+      }
+    </script>
+    
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; overflow-x: hidden; }
+      
+      .custom-cursor { width: 20px; height: 20px; border: 2px solid #ff4d4d; border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.1s ease; mix-blend-mode: difference; }
+      .custom-cursor.hover { transform: scale(2); }
+      
+      .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+      .glass-card { background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+      .glass-card:hover { background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.1) 100%); border-color: rgba(255, 77, 77, 0.5); transform: translateY(-10px); box-shadow: 0 20px 40px rgba(255, 77, 77, 0.2); }
+      
+      #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+      .text-gradient { background: linear-gradient(135deg, #ff4d4d 0%, #ff6b35 50%, #f7c531 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+      
+      .btn-primary { background: linear-gradient(135deg, #ff4d4d 0%, #ff6b35 100%); position: relative; overflow: hidden; transition: all 0.3s ease; }
+      .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: left 0.5s ease; }
+      .btn-primary:hover::before { left: 100%; }
+      .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255, 77, 77, 0.4); }
+      
+      .nav-link { position: relative; }
+      .nav-link::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, #ff4d4d, #ff6b35); transition: width 0.3s ease; }
+      .nav-link:hover::after { width: 100%; }
+      
+      .stat-number { background: linear-gradient(135deg, #ff4d4d 0%, #ff6b35 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .floating { animation: float 6s ease-in-out infinite; }
+      @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+      .progress-bar { background: linear-gradient(90deg, #ff4d4d, #ff6b35); }
+      .trainer-card:hover .trainer-image { transform: scale(1.1); }
+      .trainer-image { transition: transform 0.5s ease; }
+      .section-reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease; }
+      .section-reveal.active { opacity: 1; transform: translateY(0); }
+      .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+      
+      .menu-toggle span { transition: all 0.3s ease; }
+      .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+      .menu-toggle.active span:nth-child(2) { opacity: 0; }
+      .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
+      
+      .tech-badge { transition: all 0.3s ease; }
+      .tech-badge:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(255, 77, 77, 0.3); }
+    </style>
+  </head>
+  <body>
+    <div class="custom-cursor" id="cursor"></div>
+    <div class="noise"></div>
+    <canvas id="particles-canvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-300" id="navbar">
+      <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <a href="#" class="font-display text-3xl tracking-wider text-white hover:text-power-red transition-colors">POWER<span class="text-power-red">ROOM</span></a>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="#home" class="nav-link text-white hover:text-power-red transition-colors">Home</a>
+            <a href="#about" class="nav-link text-white hover:text-power-red transition-colors">About</a>
+            <a href="#programs" class="nav-link text-white hover:text-power-red transition-colors">Programs</a>
+            <a href="#trainers" class="nav-link text-white hover:text-power-red transition-colors">Trainers</a>
+            <a href="#tech-stack" class="nav-link text-white hover:text-power-red transition-colors">Tech Stack</a>
+            <a href="#contact" class="nav-link text-white hover:text-power-red transition-colors">Contact</a>
+            <a href="#" class="btn-primary text-white px-6 py-2 rounded-full font-semibold">Join Now</a>
+          </div>
+          <button class="md:hidden menu-toggle w-10 h-10 flex flex-col justify-center items-center space-y-1.5" id="menuBtn">
+            <span class="w-6 h-0.5 bg-white"></span>
+            <span class="w-6 h-0.5 bg-white"></span>
+            <span class="w-6 h-0.5 bg-white"></span>
+          </button>
+        </div>
+      </div>
+      <div class="md:hidden hidden glass absolute top-full left-0 w-full" id="mobileMenu">
+        <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
+          <a href="#home" class="text-white hover:text-power-red transition-colors py-2">Home</a>
+          <a href="#about" class="text-white hover:text-power-red transition-colors py-2">About</a>
+          <a href="#programs" class="text-white hover:text-power-red transition-colors py-2">Programs</a>
+          <a href="#trainers" class="text-white hover:text-power-red transition-colors py-2">Trainers</a>
+          <a href="#tech-stack" class="text-white hover:text-power-red transition-colors py-2">Tech Stack</a>
+          <a href="#contact" class="text-white hover:text-power-red transition-colors py-2">Contact</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-dark-bg/50 to-dark-bg z-10"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,77,77,0.15),transparent_50%)] z-10"></div>
+      
+      <div class="absolute top-1/4 left-10 w-20 h-20 border-2 border-power-red/30 rounded-lg floating z-10 hidden lg:block">
+        <i class="fas fa-dumbbell absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-power-red/50 text-2xl"></i>
+      </div>
+      <div class="absolute top-1/3 right-20 w-16 h-16 border-2 border-power-orange/30 rounded-full floating z-10 hidden lg:block" style="animation-delay: 1s;">
+        <i class="fas fa-bolt absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-power-orange/50 text-xl"></i>
+      </div>
+      <div class="absolute bottom-1/4 left-1/4 w-12 h-12 border-2 border-power-yellow/30 floating z-10 hidden lg:block" style="animation-delay: 2s;">
+        <i class="fas fa-fire absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-power-yellow/50 text-lg"></i>
+      </div>
+      
+      <div class="container mx-auto px-6 relative z-20">
+        <div class="text-center">
+          <p class="text-power-red font-semibold tracking-widest uppercase mb-4 hero-subtitle">Welcome to The Power Room</p>
+          <h1 class="font-display text-6xl md:text-8xl lg:text-9xl mb-6 hero-title">UNLEASH<br/><span class="text-gradient">YOUR POWER</span></h1>
+          <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 hero-desc">Transform your body. Sharpen your mind. Join the ultimate fitness experience designed for those who refuse to settle.</p>
+          <div class="flex flex-col md:flex-row gap-4 justify-center hero-buttons">
+            <a href="#programs" class="btn-primary text-white px-10 py-4 rounded-full font-bold text-lg inline-flex items-center justify-center gap-2"><i class="fas fa-play"></i> Start Training</a>
+            <a href="#about" class="glass text-white px-10 py-4 rounded-full font-bold text-lg inline-flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"><i class="fas fa-info-circle"></i> Learn More</a>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-8 md:gap-16 mt-20 hero-stats">
+          <div class="text-center"><h3 class="stat-number text-5xl md:text-6xl font-bold" data-target="500">0</h3><p class="text-gray-500 uppercase tracking-wider text-sm mt-2">Members</p></div>
+          <div class="text-center"><h3 class="stat-number text-5xl md:text-6xl font-bold" data-target="50">0</h3><p class="text-gray-500 uppercase tracking-wider text-sm mt-2">Expert Trainers</p></div>
+          <div class="text-center"><h3 class="stat-number text-5xl md:text-6xl font-bold" data-target="100">0</h3><p class="text-gray-500 uppercase tracking-wider text-sm mt-2">Programs</p></div>
+          <div class="text-center"><h3 class="stat-number text-5xl md:text-6xl font-bold" data-target="24">0</h3><p class="text-gray-500 uppercase tracking-wider text-sm mt-2">/7 Access</p></div>
+        </div>
+      </div>
+      
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce z-20">
+        <a href="#about" class="text-white/50 hover:text-power-red transition-colors"><i class="fas fa-chevron-down text-2xl"></i></a>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 relative">
+      <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div class="relative section-reveal">
+            <div class="absolute -top-4 -left-4 w-24 h-24 border-2 border-power-red/50 rounded-lg"></div>
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Gym Training" class="rounded-2xl shadow-2xl w-full object-cover h-[500px]" />
+              <div class="absolute -bottom-8 -right-8 glass rounded-2xl p-6 hidden md:block">
+                <p class="text-4xl font-bold text-gradient">10+</p>
+                <p class="text-gray-400 text-sm">Years Experience</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section-reveal" style="transition-delay: 0.2s;">
+            <p class="text-power-red font-semibold tracking-widest uppercase mb-4">About Us</p>
+            <h2 class="font-display text-5xl md:text-6xl mb-6">BUILD YOUR <span class="text-gradient">DREAM BODY</span></h2>
+            <p class="text-gray-400 text-lg mb-6 leading-relaxed">At The Power Room, we believe that true transformation comes from pushing boundaries. Our state-of-the-art facility combines premium equipment with expert guidance to help you achieve your fitness goals.</p>
+            <p class="text-gray-400 text-lg mb-8 leading-relaxed">Whether you're a beginner or a seasoned athlete, our personalized approach ensures you get the results you deserve.</p>
+            
+            <div class="space-y-4 mb-8">
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-power-red/20 flex items-center justify-center"><i class="fas fa-dumbbell text-power-red"></i></div><span class="text-gray-300">Premium Equipment</span></div>
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-power-red/20 flex items-center justify-center"><i class="fas fa-user-tie text-power-red"></i></div><span class="text-gray-300">Expert Personal Trainers</span></div>
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-power-red/20 flex items-center justify-center"><i class="fas fa-clock text-power-red"></i></div><span class="text-gray-300">24/7 Access</span></div>
+            </div>
+            
+            <a href="#contact" class="btn-primary text-white px-8 py-3 rounded-full font-semibold inline-flex items-center gap-2">Get Started <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section id="programs" class="py-24 bg-dark-card relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,77,77,0.1),transparent_50%)]"></div>
+      <div class="container mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 section-reveal">
+          <p class="text-power-red font-semibold tracking-widest uppercase mb-4">Our Programs</p>
+          <h2 class="font-display text-5xl md:text-6xl">CHOOSE YOUR <span class="text-gradient">PATH</span></h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="glass-card rounded-2xl p-8 section-reveal program-card">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-power-red to-power-orange flex items-center justify-center mb-6"><i class="fas fa-bolt text-2xl text-white"></i></div>
+            <h3 class="font-display text-3xl mb-4">HIIT</h3>
+            <p class="text-gray-400 mb-6">High-intensity interval training to maximize calorie burn and improve cardiovascular fitness.</p>
+            <div class="flex items-center justify-between"><span class="text-gray-500">60 min</span><span class="text-power-red font-semibold">$49/mo</span></div>
+            <div class="mt-4 pt-4 border-t border-dark-border"><div class="flex justify-between text-sm text-gray-500 mb-2"><span>Calories</span><span>500-800</span></div><div class="h-2 bg-dark-border rounded-full overflow-hidden"><div class="progress-bar h-full rounded-full" style="width: 85%"></div></div></div>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-8 section-reveal program-card" style="transition-delay: 0.1s;">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-power-orange to-power-yellow flex items-center justify-center mb-6"><i class="fas fa-dumbbell text-2xl text-white"></i></div>
+            <h3 class="font-display text-3xl mb-4">STRENGTH</h3>
+            <p class="text-gray-400 mb-6">Build muscle and increase strength with our comprehensive weight training programs.</p>
+            <div class="flex items-center justify-between"><span class="text-gray-500">90 min</span><span class="text-power-red font-semibold">$79/mo</span></div>
+            <div class="mt-4 pt-4 border-t border-dark-border"><div class="flex justify-between text-sm text-gray-500 mb-2"><span>Muscle Gain</span><span>High</span></div><div class="h-2 bg-dark-border rounded-full overflow-hidden"><div class="progress-bar h-full rounded-full" style="width: 95%"></div></div></div>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-8 section-reveal program-card" style="transition-delay: 0.2s;">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-power-yellow to-power-red flex items-center justify-center mb-6"><i class="fas fa-spa text-2xl text-white"></i></div>
+            <h3 class="font-display text-3xl mb-4">YOGA</h3>
+            <p class="text-gray-400 mb-6">Find balance and flexibility through our diverse yoga sessions suitable for all levels.</p>
+            <div class="flex items-center justify-between"><span class="text-gray-500">60 min</span><span class="text-power-red font-semibold">$59/mo</span></div>
+            <div class="mt-4 pt-4 border-t border-dark-border"><div class="flex justify-between text-sm text-gray-500 mb-2"><span>Flexibility</span><span>Maximum</span></div><div class="h-2 bg-dark-border rounded-full overflow-hidden"><div class="progress-bar h-full rounded-full" style="width: 90%"></div></div></div>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-8 section-reveal program-card" style="transition-delay: 0.3s;">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-6"><i class="fas fa-running text-2xl text-white"></i></div>
+            <h3 class="font-display text-3xl mb-4">CARDIO</h3>
+            <p class="text-gray-400 mb-6">Boost your endurance with our advanced cardio equipment and training programs.</p>
+            <div class="flex items-center justify-between"><span class="text-gray-500">45 min</span><span class="text-power-red font-semibold">$45/mo</span></div>
+            <div class="mt-4 pt-4 border-t border-dark-border"><div class="flex justify-between text-sm text-gray-500 mb-2"><span>Endurance</span><span>High</span></div><div class="h-2 bg-dark-border rounded-full overflow-hidden"><div class="progress-bar h-full rounded-full" style="width: 80%"></div></div></div>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-8 section-reveal program-card" style="transition-delay: 0.4s;">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mb-6"><i class="fas fa-apple-alt text-2xl text-white"></i></div>
+            <h3 class="font-display text-3xl mb-4">NUTRITION</h3>
+            <p class="text-gray-400 mb-6">Custom meal plans and nutrition coaching to fuel your body for optimal performance.</p>
+            <div class="flex items-center justify-between"><span class="text-gray-500">Consultation</span><span class="text-power-red font-semibold">$99/mo</span></div>
+            <div class="mt-4 pt-4 border-t border-dark-border"><div class="flex justify-between text-sm text-gray-500 mb-2"><span>Results</span><span>Guaranteed</span></div><div class="h-2 bg-dark-border rounded-full overflow-hidden"><div class="progress-bar h-full rounded-full" style="width: 100%"></div></div></div>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-8 section-reveal program-card" style="transition-delay: 0.5s;">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-6"><i class="fas fa-users text-2xl text-white"></i></div>
+            <h3 class="font-display text-3xl mb-4">GROUP</h3>
+            <p class="text-gray-400 mb-6">Join our energetic group classes and feed off the collective energy and motivation.</p>
+            <div class="flex items-center justify-between"><span class="text-gray-500">60 min</span><span class="text-power-red font-semibold">$39/mo</span></div>
+            <div class="mt-4 pt-4 border-t border-dark-border"><div class="flex justify-between text-sm text-gray-500 mb-2"><span>Fun Factor</span><span>Maximum</span></div><div class="h-2 bg-dark-border rounded-full overflow-hidden"><div class="progress-bar h-full rounded-full" style="width: 100%"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trainers Section -->
+    <section id="trainers" class="py-24 relative">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16 section-reveal">
+          <p class="text-power-red font-semibold tracking-widest uppercase mb-4">Meet The Team</p>
+          <h2 class="font-display text-5xl md:text-6xl">OUR <span class="text-gradient">TRAINERS</span></h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div class="trainer-card group section-reveal">
+            <div class="relative overflow-hidden rounded-2xl mb-6">
+              <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent z-10"></div>
+              <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="Trainer" class="trainer-image w-full h-80 object-cover" />
+              <div class="absolute bottom-4 left-4 right-4 z-20 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h3 class="font-display text-2xl">MARCUS STEELE</h3>
+            <p class="text-power-red uppercase tracking-wider text-sm">Head Strength Coach</p>
+            <p class="text-gray-500 mt-2 text-sm">15+ years experience in competitive powerlifting and strength training.</p>
+          </div>
+          
+          <div class="trainer-card group section-reveal" style="transition-delay: 0.1s;">
+            <div class="relative overflow-hidden rounded-2xl mb-6">
+              <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent z-10"></div>
+              <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1&auto=format&fit=crop&w=1.2.400&q=80" alt="Trainer" class="trainer-image w-full h-80 object-cover" />
+              <div class="absolute bottom-4 left-4 right-4 z-20 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h3 class="font-display text-2xl">SARAH CHEN</h3>
+            <p class="text-power-orange uppercase tracking-wider text-sm">HIIT Specialist</p>
+            <p class="text-gray-500 mt-2 text-sm">Certified HIIT instructor known for high-energy, results-driven sessions.</p>
+          </div>
+          
+          <div class="trainer-card group section-reveal" style="transition-delay: 0.2s;">
+            <div class="relative overflow-hidden rounded-2xl mb-6">
+              <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent z-10"></div>
+              <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="Trainer" class="trainer-image w-full h-80 object-cover" />
+              <div class="absolute bottom-4 left-4 right-4 z-20 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h3 class="font-display text-2xl">JAMES WILSON</h3>
+            <p class="text-power-yellow uppercase tracking-wider text-sm">Yoga & Mobility</p>
+            <p class="text-gray-500 mt-2 text-sm">Expert in yoga, pilates and mobility training for all fitness levels.</p>
+          </div>
+          
+          <div class="trainer-card group section-reveal" style="transition-delay: 0.3s;">
+            <div class="relative overflow-hidden rounded-2xl mb-6">
+              <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent z-10"></div>
+              <img src="https://images.unsplash.com/photo-1567013127542-490d757e51fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="Trainer" class="trainer-image w-full h-80 object-cover" />
+              <div class="absolute bottom-4 left-4 right-4 z-20 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-power-red flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h3 class="font-display text-2xl">ELENA RODRIGUEZ</h3>
+            <p class="text-purple-400 uppercase tracking-wider text-sm">Nutrition Coach</p>
+            <p class="text-gray-500 mt-2 text-sm">Sports nutritionist helping athletes optimize their performance through diet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech-stack" class="py-24 bg-dark-card relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,77,77,0.1),transparent_50%)]"></div>
+      <div class="container mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 section-reveal">
+          <p class="text-power-red font-semibold tracking-widest uppercase mb-4">Project Info</p>
+          <h2 class="font-display text-5xl md:text-6xl">TECH <span class="text-gradient">STACK</span></h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div class="glass-card rounded-2xl p-6 text-center tech-badge section-reveal">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center"><i class="fab fa-html5 text-3xl text-white"></i></div>
+            <h3 class="font-display text-2xl mb-2">HTML5</h3>
+            <p class="text-gray-500 text-sm">Semantic markup & accessibility</p>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-6 text-center tech-badge section-reveal" style="transition-delay: 0.1s;">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center"><i class="fab fa-css3 text-3xl text-white"></i></div>
+            <h3 class="font-display text-2xl mb-2">Tailwind CSS</h3>
+            <p class="text-gray-500 text-sm">v3.3.5 - Modern utility-first CSS</p>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-6 text-center tech-badge section-reveal" style="transition-delay: 0.2s;">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center"><i class="fab fa-js text-3xl text-white"></i></div>
+            <h3 class="font-display text-2xl mb-2">JavaScript</h3>
+            <p class="text-gray-500 text-sm">ES6+ Modern JS</p>
+          </div>
+          
+          <div class="glass-card rounded-2xl p-6 text-center tech-badge section-reveal" style="transition-delay: 0.3s;">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center"><i class="fas fa-film text-3xl text-white"></i></div>
+            <h3 class="font-display text-2xl mb-2">GSAP</h3>
+            <p class="text-gray-500 text-sm">v3.12 - Professional animations</p>
+          </div>
+        </div>
+        
+        <div class="glass rounded-2xl p-8 section-reveal">
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h3 class="font-display text-3xl mb-4">ABOUT THIS <span class="text-gradient">PROJECT</span></h3>
+              <p class="text-gray-400 mb-6">This is a portfolio project showcasing modern web development techniques including glassmorphism UI, particle animations, scroll-triggered animations, and responsive design.</p>
+              <div class="flex flex-wrap gap-3">
+                <span class="px-4 py-2 rounded-full bg-power-red/20 text-power-red text-sm font-semibold">Responsive</span>
+                <span class="px-4 py-2 rounded-full bg-power-red/20 text-power-red text-sm font-semibold">Animations</span>
+                <span class="px-4 py-2 rounded-full bg-power-red/20 text-power-red text-sm font-semibold">Modern UI</span>
+                <span class="px-4 py-2 rounded-full bg-power-red/20 text-power-red text-sm font-semibold">Portfolio-Ready</span>
+              </div>
+            </div>
+            <div class="text-center md:text-right">
+              <h4 class="font-semibold mb-4 text-gray-300">CONNECT WITH ME</h4>
+              <div class="flex md:justify-end gap-4">
+                <a href="https://github.com/JuanOnly" target="_blank" class="w-14 h-14 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fab fa-github text-xl"></i></a>
+                <a href="https://linkedin.com/in/juan-garcia-554ab7200/" target="_blank" class="w-14 h-14 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fab fa-linkedin text-xl"></i></a>
+                <a href="https://portfolio-one-nu-94.vercel.app" target="_blank" class="w-14 h-14 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fas fa-briefcase text-xl"></i></a>
+              </div>
+              <p class="text-gray-500 text-sm mt-4">View my portfolio for more projects</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-power-red/20 via-power-orange/10 to-power-red/20"></div>
+      <div class="absolute inset-0">
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-power-red/30 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-power-orange/30 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div class="container mx-auto px-6 relative z-10">
+        <div class="text-center section-reveal">
+          <h2 class="font-display text-5xl md:text-7xl mb-6">READY TO <span class="text-gradient">TRANSFORM?</span></h2>
+          <p class="text-gray-400 text-xl max-w-2xl mx-auto mb-10">Join The Power Room today and start your journey to a stronger, healthier, more confident you.</p>
+          <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <a href="#" class="btn-primary text-white px-12 py-4 rounded-full font-bold text-lg">Start Free Trial</a>
+            <a href="#" class="glass text-white px-12 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-colors">View Pricing</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 bg-dark-card relative">
+      <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12">
+          <div class="section-reveal">
+            <p class="text-power-red font-semibold tracking-widest uppercase mb-4">Get In Touch</p>
+            <h2 class="font-display text-5xl md:text-6xl mb-6">LET'S <span class="text-gradient">CONNECT</span></h2>
+            <p class="text-gray-400 text-lg mb-8">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+            
+            <div class="space-y-6">
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-power-red/20 flex items-center justify-center"><i class="fas fa-map-marker-alt text-power-red"></i></div><div><p class="font-semibold">Location</p><p class="text-gray-500">123 Fitness Street, Gym City, GC 12345</p></div></div>
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-power-red/20 flex items-center justify-center"><i class="fas fa-phone text-power-red"></i></div><div><p class="font-semibold">Phone</p><p class="text-gray-500">+1 (555) 123-4567</p></div></div>
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-power-red/20 flex items-center justify-center"><i class="fas fa-envelope text-power-red"></i></div><div><p class="font-semibold">Email</p><p class="text-gray-500">hello@powerroom.com</p></div></div>
+            </div>
+            
+            <div class="flex gap-4 mt-8">
+              <a href="#" class="w-12 h-12 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="w-12 h-12 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="w-12 h-12 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fab fa-facebook"></i></a>
+              <a href="#" class="w-12 h-12 rounded-full glass flex items-center justify-center text-white hover:bg-power-red hover:scale-110 transition-all"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+          
+          <div class="section-reveal" style="transition-delay: 0.2s;">
+            <form class="glass-card rounded-2xl p-8">
+              <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div><label class="block text-gray-400 text-sm mb-2">First Name</label><input type="text" class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white focus:border-power-red focus:outline-none transition-colors" placeholder="John" /></div>
+                <div><label class="block text-gray-400 text-sm mb-2">Last Name</label><input type="text" class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white focus:border-power-red focus:outline-none transition-colors" placeholder="Doe" /></div>
+              </div>
+              <div class="mb-6"><label class="block text-gray-400 text-sm mb-2">Email</label><input type="email" class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white focus:border-power-red focus:outline-none transition-colors" placeholder="john@example.com" /></div>
+              <div class="mb-6"><label class="block text-gray-400 text-sm mb-2">Program Interest</label>
+                <select class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white focus:border-power-red focus:outline-none transition-colors">
+                  <option>Select a program</option><option>HIIT Training</option><option>Strength Training</option><option>Yoga & Mobility</option><option>Cardio</option><option>Nutrition Coaching</option><option>Group Classes</option>
+                </select>
+              </div>
+              <div class="mb-6"><label class="block text-gray-400 text-sm mb-2">Message</label><textarea rows="4" class="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-white focus:border-power-red focus:outline-none transition-colors" placeholder="Tell us about your fitness goals..."></textarea></div>
+              <button type="submit" class="btn-primary w-full text-white py-4 rounded-lg font-bold text-lg">Send Message <i class="fas fa-paper-plane ml-2"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-dark-bg border-t border-dark-border">
+      <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-8 mb-12">
+          <div>
+            <a href="#" class="font-display text-3xl tracking-wider text-white mb-4 block">POWER<span class="text-power-red">ROOM</span></a>
+            <p class="text-gray-500">Transform your body and mind at the premier fitness destination.</p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-gray-500">
+              <li><a href="#home" class="hover:text-power-red transition-colors">Home</a></li>
+              <li><a href="#about" class="hover:text-power-red transition-colors">About</a></li>
+              <li><a href="#programs" class="hover:text-power-red transition-colors">Programs</a></li>
+              <li><a href="#trainers" class="hover:text-power-red transition-colors">Trainers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Programs</h4>
+            <ul class="space-y-2 text-gray-500">
+              <li><a href="#" class="hover:text-power-red transition-colors">HIIT</a></li>
+              <li><a href="#" class="hover:text-power-red transition-colors">Strength</a></li>
+              <li><a href="#" class="hover:text-power-red transition-colors">Yoga</a></li>
+              <li><a href="#" class="hover:text-power-red transition-colors">Nutrition</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Newsletter</h4>
+            <p class="text-gray-500 mb-4">Subscribe for tips and exclusive offers.</p>
+            <div class="flex">
+              <input type="email" placeholder="Your email" class="flex-1 bg-dark-card border border-dark-border rounded-l-lg px-4 py-2 text-white focus:border-power-red focus:outline-none" />
+              <button class="bg-power-red text-white px-4 py-2 rounded-r-lg hover:bg-power-orange transition-colors"><i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pt-8 border-t border-dark-border flex flex-col md:flex-row justify-between items-center">
+          <p class="text-gray-500 text-sm">© 2026 The Power Room. All rights reserved.</p>
+          <p class="text-gray-500 text-sm mt-4 md:mt-0">Designed with <i class="fas fa-heart text-power-red"></i> for fitness enthusiasts</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+      
+      const cursor = document.getElementById('cursor');
+      document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+      document.querySelectorAll('a, button').forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')); });
+      
+      const navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', () => { navbar.classList.toggle('glass', window.scrollY > 50); });
+      
+      const menuBtn = document.getElementById('menuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      menuBtn.addEventListener('click', () => { menuBtn.classList.toggle('active'); mobileMenu.classList.toggle('hidden'); });
+      
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      const particles = [];
+      class Particle {
+        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2; this.speedX = (Math.random() - 0.5) * 0.5; this.speedY = (Math.random() - 0.5) * 0.5; this.color = `rgba(255, ${77 + Math.random() * 50}, 77, ${Math.random() * 0.5})`; }
+        update() { this.x += this.speedX; this.y += this.speedY; if (this.x < 0 || this.x > canvas.width) this.speedX *= -1; if (this.y < 0 || this.y > canvas.height) this.speedY *= -1; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
+      }
+      for (let i = 0; i < 100; i++) particles.push(new Particle());
+      
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        particles.forEach((p1, i) => { particles.slice(i + 1).forEach(p2 => { const dx = p1.x - p2.x, dy = p1.y - p2.y, distance = Math.sqrt(dx * dx + dy * dy); if (distance < 150) { ctx.beginPath(); ctx.strokeStyle = `rgba(255, 77, 77, ${0.1 * (1 - distance / 150)})`; ctx.lineWidth = 0.5; ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } }); }); requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+      
+      const heroTl = gsap.timeline();
+      heroTl.from('.hero-subtitle', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' }).from('.hero-title', { opacity: 0, y: 50, duration: 1, ease: 'power3.out' }, '-=0.5').from('.hero-desc', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' }, '-=0.5').from('.hero-buttons', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' }, '-=0.5').from('.hero-stats > div', { opacity: 0, y: 50, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, '-=0.5');
+      
+      document.querySelectorAll('.section-reveal').forEach(el => { gsap.fromTo(el, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 80%', toggleActions: 'play none none reverse' } }); });
+      
+      document.querySelectorAll('.program-card').forEach(card => { card.addEventListener('mouseenter', () => gsap.to(card, { scale: 1.02, duration: 0.3, ease: 'power2.out' })); card.addEventListener('mouseleave', () => gsap.to(card, { scale: 1, duration: 0.3, ease: 'power2.out' })); });
+      
+      function animateCounter(element) { const target = parseInt(element.getAttribute('data-target')), duration = 2000, step = target / (duration / 16), updateCounter = () => { element.textContent = (element.textContent = Math.min(Math.floor(current += step), target) + '+'); if (current < target) requestAnimationFrame(updateCounter); }; let current = 0; updateCounter(); }
+      document.querySelectorAll('.stat-number').forEach(stat => { ScrollTrigger.create({ trigger: stat, start: 'top 80%', onEnter: () => animateCounter(stat), once: true }); });
+      
+      gsap.to('.floating', { y: -100, scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: 1 } });
+    </script>
+  </body>
+</html>
