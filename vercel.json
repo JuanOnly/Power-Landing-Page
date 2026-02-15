@@ -1,3 +1,4 @@
 {
-  "outputDirectory": "resources/views"
+  "buildCommand": null,
+  "outputDirectory": "."
 }
